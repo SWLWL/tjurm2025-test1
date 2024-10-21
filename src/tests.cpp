@@ -7,8 +7,18 @@ int my_strlen(char *str) {
      */
 
     // IMPLEMENT YOUR CODE HERE
-    return 0;
+    
+    
+    int length = 0;
+    while (str[length] != '\0') 
+       {
+        length++;
+       }
+    
+    return length;
 }
+
+
 
 
 // 练习2，实现库函数strcat
@@ -19,18 +29,50 @@ void my_strcat(char *str_1, char *str_2) {
      */
 
     // IMPLEMENT YOUR CODE HERE
+    while (*str_1 != '\0') 
+      {
+        str_1++; 
+      }
+    while (*str_2 != '\0') 
+      {
+        *str_1 = *str_2; 
+        str_1++;         
+        str_2++;         
+      }
+
+    *str_1 = '\0'; 
+
 }
 
 
 // 练习3，实现库函数strstr
-char* my_strstr(char *s, char *p) {
-    /**
-     * 在字符串s中搜索字符串p，如果存在就返回第一次找到的地址，不存在就返回空指针(0)。
-     * 例如：
-     * s = "123456", p = "34"，应该返回指向字符'3'的指针。
-     */
+char* my_strstr(char* s, char* p) {
+/*
+* 在字符串s中搜索字符串p，如果存在就返回第一次找到的地址，不存在就返回空指针(0)。
+* 例如：
+* s = "123456", p = "34"，应该返回指向字符'3'的指针。
+*/
 
-    // IMPLEMENT YOUR CODE HERE
+// IMPLEMENT YOUR CODE HERE
+
+if (*p == '\0') 
+    {
+        return s;
+    }
+    while (*s != '\0') 
+    {
+        char *begin = s; 
+        char *pattern = p; 
+        while (*s != '\0' && *pattern != '\0' && *s == *pattern) 
+        {
+            s++;
+            pattern++;
+        }
+        if (*pattern == '\0') {
+            return begin; 
+        }
+        s = begin + 1;
+    }
     return 0;
 }
 
@@ -75,7 +117,8 @@ char* my_strstr(char *s, char *p) {
 
 
 // 练习4，将彩色图片(rgb)转化为灰度图片
-void rgb2gray(float *in, float *out, int h, int w) {
+void rgb2gray(float *in, float *out, int h, int w) 
+{
     /**
      * 编写这个函数，将一张彩色图片转化为灰度图片。以下是各个参数的含义：
      * (1) float *in:  指向彩色图片对应的内存区域（或者说数组）首地址的指针。
@@ -97,6 +140,20 @@ void rgb2gray(float *in, float *out, int h, int w) {
 
     // IMPLEMENT YOUR CODE HERE
     // ...
+   for (int i = 0; i < h; i++) 
+   {
+       for (int j = 0; j < w; j++) 
+       {
+      
+        int location= (i * w + j) * 3; 
+        float R = in[location];     
+        float G = in[location + 1]; 
+        float B = in[location + 2]; 
+        float huidu = 0.2989f * R + 0.5870f * G + 0.1140f * B;
+        out[i * w + j] = huidu; 
+       }
+   }
+   
 }
 
 // 练习5，实现图像处理算法 resize：缩小或放大图像
@@ -196,8 +253,42 @@ void resize(float *in, float *out, int h, int w, int c, float scale) {
      *        所以需要对其进行边界检查
      */
 
-    int new_h = h * scale, new_w = w * scale;
-    // IMPLEMENT YOUR CODE HERE
+    int new_h = static_cast<int>(h * scale);
+    int new_w = static_cast<int>(w * scale);
+    for (int y = 0; y < new_h; ++y) 
+    {
+        for (int x = 0; x < new_w; ++x) 
+        {
+            float x0 = x / scale;
+            float y0 = y / scale;
+            int x1 = static_cast<int>(x0);
+            int y1 = static_cast<int>(y0);
+            
+            float dx = x0 - x1;
+            float dy = y0 - y1;
+            
+            int x2 = x1 + 1;
+            int y2 = y1 + 1;
+
+            if (x1 >= w) x1 = w - 1;
+            if (y1 >= h) y1 = h - 1;
+            if (x2 >= w) x2 = w - 1;
+            if (y2 >= h) y2 = h - 1;
+
+            for (int ss= 0; ss < c; ++ss) {
+                float P1 = in[y1 * w * c + x1 * c + ss]; 
+                float P2 = in[y1 * w * c + x2 * c + ss]; 
+                float P3 = in[y2 * w * c + x1 * c + ss]; 
+                float P4 = in[y2 * w * c + x2 * c + ss]; 
+
+                float Q = P1 * (1 - dx) * (1 - dy) +
+                          P2 * dx * (1 - dy) +
+                          P3 * (1 - dx) * dy +
+                          P4 * dx * dy;
+                out[y * new_w * c + x * c + ss] = Q;
+            }
+        }
+    }
 
 }
 
@@ -221,4 +312,32 @@ void hist_eq(float *in, int h, int w) {
      */
 
     // IMPLEMENT YOUR CODE HERE
+int hist[256] = {0};
+for (int i = 0; i < h; i++) 
+{
+    for (int j = 0; j < w; j++) 
+    {
+        int zhi = (int)in[i * w + j];
+        hist[zhi]++; 
+    }
+}
+
+float cdf[256] = {0};
+cdf[0] = hist[0];
+for (int i = 1; i < 256; i++) {
+    cdf[i] = cdf[i - 1] + hist[i]; 
+}
+float cdf_min = cdf[0];
+for (int i = 0; i < 256; i++) 
+{
+    cdf[i] = (cdf[i] - cdf_min) / (h * w - cdf_min) * 255; 
+}
+for (int i = 0; i < h; i++) 
+{
+    for (int j = 0; j < w; j++) 
+    {
+        int zhi = (int)in[i * w + j];
+        in[i * w + j] = cdf[zhi]; 
+    }
+}
 }

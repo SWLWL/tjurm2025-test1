@@ -2,11 +2,13 @@
 #include "tests.h"
 #include <iostream>
 #include <cstring>
+using namespace std;
 
 
 
 
-void test_rgb2gray() {
+void test_rgb2gray() 
+{
     std::cout << "开始测试函数 << rgb2gray >> ..." << std::endl;
     char *path = "../images/rgb2gray/input.jpg";
     float *img;
@@ -55,7 +57,7 @@ void test_strcat() {
     std::cout << "开始测试函数 << my_strcat >> ..." << std::endl;
 
     int n = 2000;
-    // 来源：电影《绿皮书》
+   // 来源：电影《绿皮书》
     char str1[n] =
     "Dear Dolores\n"
     "When I think of you, I'm reminded of the beautiful plains of Iowa. The distance \n"
