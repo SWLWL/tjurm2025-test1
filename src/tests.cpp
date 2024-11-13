@@ -9,13 +9,13 @@ int my_strlen(char *str) {
     // IMPLEMENT YOUR CODE HERE
     
     
-    int length = 0;
-    while (str[length] != '\0') 
+    int len = 0;
+    while (str[len] != '\0') 
        {
-        length++;
+        len++;
        }
     
-    return length;
+    return len;
 }
 
 
@@ -55,12 +55,10 @@ char* my_strstr(char* s, char* p) {
 
 // IMPLEMENT YOUR CODE HERE
 
-if (*p == '\0') 
-    {
+    if (*p == '\0') {
         return s;
     }
-    while (*s != '\0') 
-    {
+    while (*s != '\0'){
         char *begin = s; 
         char *pattern = p; 
         while (*s != '\0' && *pattern != '\0' && *s == *pattern) 
@@ -145,7 +143,7 @@ void rgb2gray(float *in, float *out, int h, int w)
        for (int j = 0; j < w; j++) 
        {
       
-        int location= (i * w + j) * 3; 
+        int location= (i * w + j) * 3;
         float R = in[location];     
         float G = in[location + 1]; 
         float B = in[location + 2]; 
@@ -253,16 +251,16 @@ void resize(float *in, float *out, int h, int w, int c, float scale) {
      *        所以需要对其进行边界检查
      */
 
-    int new_h = static_cast<int>(h * scale);
-    int new_w = static_cast<int>(w * scale);
+    int new_h = (int)(h * scale);
+    int new_w = (int)(w * scale);
     for (int y = 0; y < new_h; ++y) 
     {
         for (int x = 0; x < new_w; ++x) 
         {
             float x0 = x / scale;
             float y0 = y / scale;
-            int x1 = static_cast<int>(x0);
-            int y1 = static_cast<int>(y0);
+            int x1 = (int)(x0);
+            int y1 = (int)(y0);
             
             float dx = x0 - x1;
             float dy = y0 - y1;
@@ -272,8 +270,8 @@ void resize(float *in, float *out, int h, int w, int c, float scale) {
 
             if (x1 >= w) x1 = w - 1;
             if (y1 >= h) y1 = h - 1;
-            if (x2 >= w) x2 = w - 1;
-            if (y2 >= h) y2 = h - 1;
+            if (x2 >= w) x2 = w-1;
+            if (y2 >= h) y2 = h-1;
 
             for (int ss= 0; ss < c; ++ss) {
                 float P1 = in[y1 * w * c + x1 * c + ss]; 
@@ -312,32 +310,35 @@ void hist_eq(float *in, int h, int w) {
      */
 
     // IMPLEMENT YOUR CODE HERE
-int hist[256] = {0};
-for (int i = 0; i < h; i++) 
-{
-    for (int j = 0; j < w; j++) 
-    {
-        int zhi = (int)in[i * w + j];
-        hist[zhi]++; 
+        int histogram[256] = {0};
+
+    
+    for (int i = 0; i < h * w; ++i) {
+        int gray_level = in[i];
+        histogram[gray_level]++;
     }
+
+    
+    int cdf[256];
+    cdf[0] = histogram[0];
+    for (int i = 1; i < 256; ++i) {
+        cdf[i] = cdf[i - 1] + histogram[i];
+    }
+
+    
+    float mapping[256];
+    for (int i = 0; i < 256; ++i) {
+        
+
+        mapping[i] = (float)cdf[i] * 255 / (h * w)+1;
+    }
+
+    
+    for (int i = 0; i < h * w; ++i) {
+        int gray_level = (int)in[i];
+        in[i] = mapping[gray_level];
+    }
+
+   
 }
 
-float cdf[256] = {0};
-cdf[0] = hist[0];
-for (int i = 1; i < 256; i++) {
-    cdf[i] = cdf[i - 1] + hist[i]; 
-}
-float cdf_min = cdf[0];
-for (int i = 0; i < 256; i++) 
-{
-    cdf[i] = (cdf[i] - cdf_min) / (h * w - cdf_min) * 255; 
-}
-for (int i = 0; i < h; i++) 
-{
-    for (int j = 0; j < w; j++) 
-    {
-        int zhi = (int)in[i * w + j];
-        in[i * w + j] = cdf[zhi]; 
-    }
-}
-}
